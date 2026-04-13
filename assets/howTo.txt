@@ -85,3 +85,12 @@ void MyWebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
 }
 
 
+
+-DCMAKE_TOOLCHAIN_FILE=C:\Program Files\Microsoft Visual Studio\18\Community\VC\vcpkg\scripts\buildsystems\vcpkg.cmake
+
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\vcpkg
+
+C:\Users\alex\AppData\Local\vcpkg\registries
+
+C:\Windows\WinSxS\amd64_microsoft-windows-shell-wallpaper-themed_31bf3856ad364e35_10.0.22621.1_none_386b44e898b13daa
+C:\Windows\WinSxS\amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7

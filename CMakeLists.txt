@@ -17,21 +17,21 @@ message(STATUS "Found Qt version: ${Qt6_VERSION}")
 message(STATUS "Qt Protobuf found: ${Qt6Protobuf_FOUND}")
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+        src/main.cpp
+        src/mainwindow.cpp
+        inc/mainwindow.h
+        forms/mainwindow.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(pictClient
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        websocketclient.h websocketclient.cpp
+        inc/websocketclient.h src/websocketclient.cpp
         assets/message.proto
         assets/howTo.txt
         vcpkg.json
-        clickablelabel.h clickablelabel.cpp
+        inc/clickablelabel.h src/clickablelabel.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET pictClient APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -51,6 +51,7 @@ else()
     endif()
 endif()
 
+target_include_directories(pictClient PUBLIC "inc" "forms")
 target_link_libraries(pictClient PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::WebSockets  Qt${QT_VERSION_MAJOR}::Protobuf) # Qt${QT_VERSION_MAJOR}::ProtobufTools)
 
