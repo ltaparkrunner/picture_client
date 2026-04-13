@@ -1,0 +1,87 @@
+//// sends(serilisation)
+
+UserProfile user;
+user.set_id(123);
+user.set_name("Ivan");
+
+// Превращаем в строку байтов (std::string)
+std::string output;
+user.SerializeToString(&output);
+
+// Отправляем через наш WebSocket (который мы написали ранее)
+QByteArray data = QByteArray::fromStdString(output);
+client.sendBinary(data);
+
+//// receive(deserilisation)
+
+void MyWebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
+    UserProfile user;
+    if (user.ParseFromArray(data.data(), data.size())) {
+        qDebug() << "Получен пользователь ID:" << user.id() << "Имя:" << QString::fromStdString(user.name());
+    }
+}
+
+
+addressbook.proto
+
+syntax = "proto3";
+
+package MyProject;
+
+message User {
+    int32 id = 1;
+    string name = 2;
+    string email = 3;
+}
+
+
+//// add to CMake
+
+find_package(Protobuf REQUIRED)
+
+# Указываем путь к .proto файлу
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS addressbook.proto)
+
+# Добавляем сгенерированные файлы в исполняемый файл
+add_executable(my_app main.cpp ${PROTO_SRCS} ${PROTO_HDRS})
+
+# Линкуем библиотеку protobuf
+target_link_libraries(my_app PRIVATE Qt6::WebSockets protobuf::libprotobuf)
+target_include_directories(my_app PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+
+//// sending data: (Serialization):
+
+cpp
+#include "addressbook.pb.h"
+
+void someFunction() {
+    MyProject::User user;
+    user.set_id(7);
+    user.set_name("Alex");
+    user.set_email("alex@example.com");
+
+    // Сериализуем в строку (стандартный механизм Protobuf)
+    std::string binaryData;
+    user.SerializeToString(&binaryData);
+
+    // Отправляем через наш метод sendBinary
+    myClient.sendBinary(QByteArray::fromStdString(binaryData));
+}
+
+//// receiving data: (Desesrialisation):
+
+cpp
+void MyWebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
+    MyProject::User user;
+
+    // Пытаемся распарсить массив байт
+    if (user.ParseFromArray(data.data(), data.size())) {
+        qDebug() << "ID:" << user.id();
+        qDebug() << "Name:" << QString::fromStdString(user.name());
+    } else {
+        qDebug() << "Ошибка: не удалось распарсить Protobuf данные";
+    }
+}
+
+
