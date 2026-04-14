@@ -7,9 +7,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-//    , wsc(new WebSocketClient(QUrl("mongodb://mongo:27017/images_db"), this))
-    , wsc(new WebSocketClient(QUrl("wss://localhost:8080"), this))
-//    , wsc(new WebSocketClient(QUrl("wss://127.0.0.1:8080"), this))
+    , iwsc(new ImageClient(QUrl("wss://localhost:8080"), this))
 {
     ui->setupUi(this);
     this->setStyleSheet(

@@ -1,17 +1,58 @@
 #include "imgclient.h"
 #include <QDebug>
 
-ImageClient::ImageClient(QObject *parent) : QObject(parent) {
+ImageClient::ImageClient(const QUrl &url, QObject *parent)
+    : QObject(parent)
+    , m_url(url)
+{
+    m_reconnectTimer.setSingleShot(true);
+    connect(&m_reconnectTimer, &QTimer::timeout, this, &ImageClient::connectToServer);
+    connect(&m_pingTimer, &QTimer::timeout, [&]() {
+        if (m_webSocket.state() == QAbstractSocket::ConnectedState) m_webSocket.ping();
+    });
     connect(&m_webSocket, &QWebSocket::connected, this, &ImageClient::onConnected);
+    connect(&m_webSocket, &QWebSocket::disconnected, this, &ImageClient::onDisconnected);
+    connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &ImageClient::onTextMessageReceived);
     connect(&m_webSocket, &QWebSocket::binaryMessageReceived, this, &ImageClient::onBinaryMessageReceived);
+    connect(&m_webSocket, &QWebSocket::errorOccurred, this, &ImageClient::onError);
+    connect(&m_webSocket, &QWebSocket::sslErrors, this, [=](const QList<QSslError> &errors) {
+        qDebug() << "SSL Errors occurred, ignoring...";
+        for (const QSslError &error : errors) {
+            qDebug() << "SSL Error:" << error.errorString();
+        }
+        m_webSocket.ignoreSslErrors(); // Разрешаем соединение
+    });
+    connectToServer();
 }
 
-void ImageClient::connectToServer(const QUrl &url) {
-    m_webSocket.open(url);
+void ImageClient::connectToServer() {
+    qDebug() << "Try to connect";
+    QNetworkRequest request(m_url);
+
+    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+    QList<QSslCertificate> certs = QSslCertificate::fromPath("C:/wrk/nodejs/picture_server/cert.pem");
+    config.addCaCertificates(certs);
+
+    m_webSocket.setSslConfiguration(config);
+    m_webSocket.ignoreSslErrors(); // Игнорируем ошибки цепочки доверия
+    m_webSocket.open(request);
 }
 
 void ImageClient::onConnected() {
-    qDebug() << "Connected to server!";
+    qDebug() << "Подключено. Heartbeat запущен.";
+    m_reconnectTimer.stop();
+    m_pingTimer.start(PING_INTERVAL);
+}
+
+void ImageClient::onDisconnected() {
+    qDebug() << "Связь потеряна. Ожидание переподключения...";
+    m_pingTimer.stop();
+    m_reconnectTimer.start(RECONNECT_INTERVAL);
+}
+
+// Обработка текста
+void ImageClient::onTextMessageReceived(const QString &message) {
+    qDebug() << "Текст от сервера:" << message;
 }
 
 void ImageClient::sendImage(const QString &filePath) {
@@ -36,7 +77,41 @@ void ImageClient::onBinaryMessageReceived(const QByteArray &message) {
     qDebug() << "Answer from server received";
 }
 
+void ImageClient::sendText(const QString &message) {
+    if (m_webSocket.state() == QAbstractSocket::ConnectedState) {
+        m_webSocket.sendTextMessage(message);
+    }
+}
 
+void ImageClient::sendBinary(const QByteArray &data) {
+    if (m_webSocket.state() == QAbstractSocket::ConnectedState) {
+        m_webSocket.sendBinaryMessage(data); // Отправка бинарного пакета
+    }
+}
+
+void ImageClient::onError(QAbstractSocket::SocketError error) {
+    qDebug() << "Ошибка:" << m_webSocket.errorString();
+    if (m_webSocket.state() != QAbstractSocket::ConnectedState && !m_reconnectTimer.isActive()) {
+        m_reconnectTimer.start(RECONNECT_INTERVAL);
+    }
+}
+
+void ImageClient::setupSslConfiguration() {
+    QSslConfiguration config = m_webSocket.sslConfiguration();
+
+    // Загружаем ваш файл сертификата (.crt или .pem)
+    QFile certFile(":/server_cert.crt");
+    if (certFile.open(QIODevice::ReadOnly)) {
+        QSslCertificate cert(&certFile, QSsl::Pem);
+
+        // Добавляем его в список доверенных
+        QList<QSslCertificate> caCerts = config.caCertificates();
+        caCerts.append(cert);
+        config.setCaCertificates(caCerts);
+
+        m_webSocket.setSslConfiguration(config);
+    }
+}
 
 /*
 

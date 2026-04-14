@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
-#include "websocketclient.h"
+#include "imgclient.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,6 +27,6 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    WebSocketClient *wsc;
+    ImageClient *iwsc;
 };
 #endif // MAINWINDOW_H

@@ -25,9 +25,7 @@ set(PROJECT_SOURCES
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(pictClient
-#        MANUAL_FINALIZATIONi
         ${PROJECT_SOURCES}
-        inc/websocketclient.h src/websocketclient.cpp
         assets/message.proto
         assets/howTo.txt
         vcpkg.json
@@ -35,7 +33,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/imgclient.cpp
         inc/imgclient.h
     )
-#        inc/imgclient.h
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET pictClient APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
