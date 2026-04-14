@@ -18,6 +18,20 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent)
     connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &WebSocketClient::onTextMessageReceived);
     connect(&m_webSocket, &QWebSocket::binaryMessageReceived, this, &WebSocketClient::onBinaryMessageReceived); // Бинарка
     connect(&m_webSocket, &QWebSocket::errorOccurred, this, &WebSocketClient::onError);
+    connect(&m_webSocket, &QWebSocket::sslErrors, this, [=](const QList<QSslError> &errors) {
+        qDebug() << "SSL Errors occurred, ignoring...";
+        for (const QSslError &error : errors) {
+            qDebug() << "SSL Error:" << error.errorString();
+        }
+        m_webSocket.ignoreSslErrors(); // Разрешаем соединение
+    });
+    // connect(&m_webSocket, &QWebSocket::sslErrors, this, [=](const QList<QSslError> &errors) {
+    //     m_webSocket.ignoreSslErrors();
+    // });
+
+    qDebug() << "Поддерживает ли Qt SSL?" << QSslSocket::supportsSsl();
+    qDebug() << "Версия OpenSSL при сборке:" << QSslSocket::sslLibraryBuildVersionString();
+    qDebug() << "Версия OpenSSL в системе:" << QSslSocket::sslLibraryVersionString();
 
     connectToServer();
 }
@@ -25,9 +39,30 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent)
 void WebSocketClient::connectToServer() {
     qDebug() << "Try to connect";
     QNetworkRequest request(m_url);
-    request.setRawHeader("Authorization", "Bearer my_token_123");
+    // request.setRawHeader("Authorization", "Bearer my_token_123");
+    /////////////////////////////////////////
+    // QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+    // config.setProtocol(QSsl::TlsV1_2OrLater); // Совместимость с большинством серверов
+    // config.setPeerVerifyMode(QSslSocket::VerifyNone); // Отключаем проверку для теста
 
+    // m_webSocket.setSslConfiguration(config);
+
+    // QSslConfiguration config = m_webSocket.sslConfiguration();
+    // // Отключаем проверку того, что сертификат выписан именно на "localhost"
+    // config.setPeerVerifyMode(QSslSocket::VerifyNone);
+    // // Это критично для SChannel при работе с самоподписанными сертификатами
+    // config.setPeerVerifyDepth(0);
+
+    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+    QList<QSslCertificate> certs = QSslCertificate::fromPath("C:/wrk/nodejs/picture_server/cert.pem");
+    config.addCaCertificates(certs);
+
+    m_webSocket.setSslConfiguration(config);
+    m_webSocket.ignoreSslErrors(); // Игнорируем ошибки цепочки доверия
+    ////////////////////////////////////
+    qDebug() << "Before an attempt to open wss connection";
     m_webSocket.open(request);
+    qDebug() << "After an attempt to open wss connection";
 }
 
 void WebSocketClient::onConnected() {

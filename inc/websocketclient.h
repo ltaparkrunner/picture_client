@@ -5,6 +5,7 @@
 #include <QtWebSockets/QWebSocket>
 #include <QTimer>
 #include <QNetworkRequest>
+#include <QSslConfiguration>
 
 class WebSocketClient : public QObject {
     Q_OBJECT
