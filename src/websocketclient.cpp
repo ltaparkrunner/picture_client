@@ -23,6 +23,7 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent)
 }
 
 void WebSocketClient::connectToServer() {
+    qDebug() << "Try to connect";
     QNetworkRequest request(m_url);
     request.setRawHeader("Authorization", "Bearer my_token_123");
 

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include "websocketclient.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -21,7 +22,11 @@ public:
     void loadSixImages(const QString &dir);
     void loadToLabel(QLabel *lbl, const QString &path);
 
+    void connect_to_server();
+    void disconnect_to_server();
+
 private:
     Ui::MainWindow *ui;
+    WebSocketClient *wsc;
 };
 #endif // MAINWINDOW_H

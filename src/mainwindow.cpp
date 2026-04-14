@@ -7,6 +7,8 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+//    , wsc(new WebSocketClient(QUrl("mongodb://mongo:27017/images_db"), this))
+    ,wsc(new WebSocketClient(QUrl("ws://localhost:8080"), this))
 {
     ui->setupUi(this);
     this->setStyleSheet(
@@ -21,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
         "}"
         );
     connect(ui->pushButton_5, &QPushButton::clicked, this, &MainWindow::on_selectFolderButton_clicked);
+    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::connect_to_server);
+    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::disconnect_to_server);
 }
 
 MainWindow::~MainWindow()
@@ -102,3 +106,10 @@ void MainWindow::loadToLabel(QLabel *lbl, const QString &path){
     lbl->setPixmap(scaledPix);
 }
 
+void MainWindow::disconnect_to_server() {
+
+}
+
+void MainWindow::connect_to_server() {
+
+}
