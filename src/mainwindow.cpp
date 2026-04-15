@@ -22,8 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
         "}"
         );
     connect(ui->pushButton_5, &QPushButton::clicked, this, &MainWindow::on_selectFolderButton_clicked);
-    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::connect_to_server);
-    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::disconnect_to_server);
+    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::send_image);
+    connect(ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::send_smth);
 }
 
 MainWindow::~MainWindow()
@@ -105,10 +105,13 @@ void MainWindow::loadToLabel(QLabel *lbl, const QString &path){
     lbl->setPixmap(scaledPix);
 }
 
-void MainWindow::disconnect_to_server() {
-
+void MainWindow::send_image() {
+//    iwsc->sendImage("C:\Windows\WinSxS\amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7\img21.jpg");
+    iwsc->sendImage("C:\\Windows\\WinSxS\\amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7\\img21.jpg");
+    qDebug() << "MainWindow::send_image() done";
 }
 
-void MainWindow::connect_to_server() {
-
+void MainWindow::send_smth() {
+    iwsc->sendImage("C:/Windows/WinSxS/amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7/img21.jpg");
+    qDebug() << "MainWindow::send_smth() done";
 }

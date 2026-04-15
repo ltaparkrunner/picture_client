@@ -22,8 +22,8 @@ public:
     void loadSixImages(const QString &dir);
     void loadToLabel(QLabel *lbl, const QString &path);
 
-    void connect_to_server();
-    void disconnect_to_server();
+    void send_image();
+    void send_smth();
 
 private:
     Ui::MainWindow *ui;

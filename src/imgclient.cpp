@@ -1,5 +1,9 @@
 #include "imgclient.h"
+#include "pict_data/message.qpb.h"
 #include <QDebug>
+#include <QFileInfo>
+#include <QDateTime>
+#include <QtProtobuf/QProtobufSerializer>
 
 ImageClient::ImageClient(const QUrl &url, QObject *parent)
     : QObject(parent)
@@ -63,14 +67,24 @@ void ImageClient::sendImage(const QString &filePath) {
     }
 
     QByteArray fileData = file.readAll();
+    QFileInfo fileInfo(filePath);
 
     // ВАЖНО: Если сервер ждет Socket.io пакет, нужно добавить префикс.
     // Если сервер ждет чистый Protobuf через сырой WebSocket:
     // [Здесь должна быть сериализация через сгенерированный Protobuf класс]
     // Для теста отправим просто байты:
-    m_webSocket.sendBinaryMessage(fileData);
 
-    qDebug() << "Image sent, size:" << fileData.size();
+    pict_data::ImageUpload message;
+    message.setFilename(fileInfo.fileName());
+    message.setEmailLogin("forever_young");
+    message.setData(fileData.constData());
+    message.setContentType("image");
+    message.setTimestamp(QDateTime::currentMSecsSinceEpoch());
+    QProtobufSerializer serializer;
+    QByteArray data = message.serialize(&serializer);
+    qint64 sz = m_webSocket.sendBinaryMessage(data);
+
+    qDebug() << "Image sent, size:" << sz;
 }
 
 void ImageClient::onBinaryMessageReceived(const QByteArray &message) {

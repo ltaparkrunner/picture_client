@@ -51,9 +51,15 @@ else()
     endif()
 endif()
 
+qt_add_protobuf(PictSerializer
+    GENERATE_PACKAGE_SUBFOLDERS
+    PROTO_FILES
+        assets/message.proto
+)
+
 target_include_directories(pictClient PUBLIC "inc" "forms")
 target_link_libraries(pictClient PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network
-    Qt${QT_VERSION_MAJOR}::WebSockets  Qt${QT_VERSION_MAJOR}::Protobuf) # Qt${QT_VERSION_MAJOR}::ProtobufTools)
+    Qt${QT_VERSION_MAJOR}::WebSockets  Qt${QT_VERSION_MAJOR}::Protobuf PictSerializer) # Qt${QT_VERSION_MAJOR}::ProtobufTools)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -67,12 +73,6 @@ set_target_properties(pictClient PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
-)
-
-qt_add_protobuf(pictClient
-    GENERATE_PACKAGE_SUBFOLDERS
-    PROTO_FILES
-        assets/message.proto
 )
 
 include(GNUInstallDirs)

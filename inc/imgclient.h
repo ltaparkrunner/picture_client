@@ -14,6 +14,7 @@ public:
     explicit ImageClient(const QUrl &url, QObject *parent = nullptr);
     void connectToServer();
     void sendImage(const QString &filePath);
+    void getImage(const QString &filePath);
     void setupSslConfiguration();
     void sendText(const QString &message);
     void sendBinary(const QByteArray &data);
