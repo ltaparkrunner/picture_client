@@ -3,7 +3,7 @@ package pict_data;
 
 message Picture {
   string emailLogin = 1;
-  string contenttype = 2;
+  string contentType = 2;
   bytes data = 3;
   string filename = 4;
   int64 timestamp = 5;
@@ -25,9 +25,9 @@ message ImageListResponse {
 message BaseMessage {
   oneof content {
       Picture pict = 1;
-      ImageListRequest list_request = 2;
+      ImageListRequest listRequest = 2;
       ImageInfo info = 3;
-      ImageListResponse list_response = 4;
+      ImageListResponse listResponse = 4;
   }
 }
 

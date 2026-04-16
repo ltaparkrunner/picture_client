@@ -18,6 +18,10 @@ public:
     void setupSslConfiguration();
     void sendText(const QString &message);
     void sendBinary(const QByteArray &data);
+    void requestInitialImages();
+//    void onMessageReceived(const QByteArray &data);
+    void downloadImage(const QString &url);
+    void downloadImage2(const QString &url);
 
 private slots:
     void onConnected();
@@ -26,6 +30,9 @@ private slots:
     void onTextMessageReceived(const QString &message);
     void onBinaryMessageReceived(const QByteArray &message);
     void onError(QAbstractSocket::SocketError error);
+
+signals:
+    void imageReady(QPixmap &img);
 
 private:
     QWebSocket m_webSocket;

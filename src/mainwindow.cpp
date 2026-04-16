@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , iwsc(new ImageClient(QUrl("wss://localhost:8080"), this))
+    , counter (0)
 {
     ui->setupUi(this);
     this->setStyleSheet(
@@ -21,9 +22,11 @@ MainWindow::MainWindow(QWidget *parent)
         "  background-color: #f0f8ff;" // Легкий фон
         "}"
         );
+    ui->graphicsView->setScene(new QGraphicsScene(this));
     connect(ui->pushButton_5, &QPushButton::clicked, this, &MainWindow::on_selectFolderButton_clicked);
     connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::send_image);
     connect(ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::send_smth);
+    connect(iwsc, &ImageClient::imageReady, this, &MainWindow::displayDBImage);
 }
 
 MainWindow::~MainWindow()
@@ -112,6 +115,34 @@ void MainWindow::send_image() {
 }
 
 void MainWindow::send_smth() {
-    iwsc->sendImage("C:/Windows/WinSxS/amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7/img21.jpg");
-    qDebug() << "MainWindow::send_smth() done";
+//    iwsc->sendImage("C:/Windows/WinSxS/amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7/img21.jpg");
+    qDebug() << "iwsc->requestInitialImages()";
+    iwsc->requestInitialImages();
+//    qDebug() << "MainWindow::send_smth() done";
+}
+
+void MainWindow::displayDBImage(QPixmap &pm){
+    counter++;
+    qDebug() << "MainWindow::displayDBImage(QPixmap &pm) counter: " << counter;
+    // // 1. Получаем указатель на сцену
+    // QGraphicsScene *scene = ui->graphicsView->scene();
+
+    // // 2. Очищаем сцену, если нужно отобразить только новую картинку
+    // scene->clear();
+
+    // // 3. Добавляем Pixmap на сцену.
+    // // Метод addPixmap возвращает указатель на QGraphicsPixmapItem
+    // scene->addPixmap(pm);
+
+    // // 4. Опционально: подгоняем размер сцены под картинку
+    // scene->setSceneRect(pm.rect());
+
+    // // 5. Чтобы картинка вписалась в размер виджета:
+    // ui->graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+    QPixmap scaledPix = pm.scaled(ui->label_6->size(),
+                                   Qt::KeepAspectRatio,
+                                   Qt::SmoothTransformation);
+    // 3. (Опционально) Разрешаем картинке масштабироваться под размер лейбла
+    //lbl->setScaledContents(true);
+    ui->label_6->setPixmap(scaledPix);
 }

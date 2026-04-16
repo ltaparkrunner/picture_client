@@ -1,3 +1,7 @@
+Given: picture_client application is written on Qt/c++, qwebsocket, Protobuf, TLS, transmit images to picture_server. picture_server is written on Node.js MongoDB, MinIO. Server saves and stores images. Write code to picture_client to request and to get, and picture_server to transmit first six images, stored in specified MioIo backet.
+
+
+
 how can client load first six images from server, from some bucket?
 Для загрузки первых шести изображений лучше всего использовать двухэтапный процесс: сначала запросить список имен файлов через WebSocket (Protobuf), а затем загрузить сами данные.
 Вот как это реализовать:

@@ -28,5 +28,8 @@ public:
 private:
     Ui::MainWindow *ui;
     ImageClient *iwsc;
+    int counter;
+
+    void displayDBImage(QPixmap &pm);
 };
 #endif // MAINWINDOW_H
